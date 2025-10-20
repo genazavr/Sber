@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/leaf_background.dart'; // 🍃 общий фон с листьями
+import '../widgets/leaf_background.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -26,7 +26,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // Плавное появление формы
+
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -37,7 +37,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     );
 
-    // Запуск появления после лёгкой задержки
+
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _fadeController.forward();
     });
@@ -87,7 +87,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: Colors.green.shade50,
-      body: LeafBackground( // 🍃 теперь листья не пересоздаются
+      body: LeafBackground(
         offsetFactor: 1.2,
         waveSpeed: 0.8,
         moveDuration: const Duration(seconds: 4),

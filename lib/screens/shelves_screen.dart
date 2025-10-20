@@ -37,7 +37,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔹 Заголовок
+
                 const Row(
                   children: [
                     CircleAvatar(
@@ -67,14 +67,14 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // 🔹 Верхняя панель статистики (реальные данные)
+
                 _TopStats(
                   score: userScore,
                   shelvesCount: shelvesList.length,
                 ),
                 const SizedBox(height: 20),
 
-                // 🔹 Список стеллажей
+
                 Expanded(
                   child: shelvesList.isEmpty
                       ? const Center(
@@ -152,7 +152,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   }
 }
 
-/// 🔹 Верхняя панель статистики
+
 class _TopStats extends StatelessWidget {
   final String score;
   final int shelvesCount;
@@ -204,7 +204,7 @@ class _TopStats extends StatelessWidget {
   }
 }
 
-/// 🔹 Элемент статистики
+
 class _StatItem extends StatelessWidget {
   final String value;
   final String label;
@@ -236,7 +236,7 @@ class _StatItem extends StatelessWidget {
   }
 }
 
-/// 🔹 Карточка стеллажа
+
 class _ShelfCard extends StatelessWidget {
   final String id;
   final double soil;
@@ -276,7 +276,7 @@ class _ShelfCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Заголовок и иконка состояния
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -292,7 +292,7 @@ class _ShelfCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Показатели
+
             Row(
               children: [
                 const Icon(Icons.grass, color: Colors.green, size: 20),
@@ -307,7 +307,7 @@ class _ShelfCard extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // Кнопки
+
             Row(
               children: [
                 Expanded(
@@ -342,7 +342,7 @@ class _ShelfCard extends StatelessWidget {
   }
 }
 
-/// 🔹 Кнопка добавления стеллажа с диалогом
+
 class _AddShelfButton extends StatelessWidget {
   final TextEditingController codeCtrl;
   const _AddShelfButton({required this.codeCtrl});

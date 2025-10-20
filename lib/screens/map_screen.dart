@@ -7,9 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../providers/user_provider.dart';
-import '../widgets/leaf_background.dart';
 import 'shop_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import '../widgets/leaf_background.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,10 +31,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     {'name': 'Классическая', 'image': 'assets/cards/1.png'},
     {'name': 'Весёлая', 'image': 'assets/cards/2.png'},
     {'name': 'Командная', 'image': 'assets/cards/3.png'},
-
   ];
 
-  Map<String, String> _generateCardDetails() => {'expiry': '07/29', 'cvv': '512'};
+  Map<String, String> _generateCardDetails() =>
+      {'expiry': '07/29', 'cvv': '512'};
 
   @override
   void initState() {
@@ -48,7 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final snap = await FirebaseDatabase.instance.ref('users/$uid/cardDesign').get();
+    final snap =
+    await FirebaseDatabase.instance.ref('users/$uid/cardDesign').get();
     if (snap.exists) {
       setState(() => _selectedDesign = snap.value.toString());
     } else {
@@ -60,11 +61,36 @@ class _ProfileScreenState extends State<ProfileScreen>
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    await FirebaseDatabase.instance.ref('users/$uid').update({'cardDesign': designName});
+    await FirebaseDatabase.instance
+        .ref('users/$uid')
+        .update({'cardDesign': designName});
     setState(() => _selectedDesign = designName);
   }
 
-  // Выбор дизайна карты
+
+  String _generateCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return List.generate(6, (i) => chars[(now + i * 37) % chars.length]).join();
+  }
+
+  Future<void> _createLinkCode(String uid, String email) async {
+    final code = _generateCode();
+    final expires = DateTime.now().add(const Duration(minutes: 5));
+
+    await FirebaseDatabase.instance.ref('link_codes/$code').set({
+      'childUid': uid,
+      'childEmail': email,
+      'createdAt': DateTime.now().toIso8601String(),
+      'expiresAt': expires.toIso8601String(),
+    });
+
+    setState(() {
+      _linkCode = code;
+      _expiresAt = expires;
+    });
+  }
+
   void _chooseCardDesign() {
     showModalBottomSheet(
       context: context,
@@ -83,9 +109,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             const SizedBox(height: 16),
             Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: 12,
               children: _cardDesigns.map((design) {
                 final isSelected = _selectedDesign == design['name'];
                 return GestureDetector(
@@ -101,7 +126,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: isSelected ? Colors.green : Colors.transparent,
+                            color: isSelected
+                                ? Colors.green
+                                : Colors.transparent,
                             width: 3,
                           ),
                           image: DecorationImage(
@@ -114,7 +141,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         const Positioned(
                           top: 8,
                           right: 8,
-                          child: Icon(Icons.check_circle, color: Colors.green, size: 24),
+                          child: Icon(Icons.check_circle,
+                              color: Colors.green, size: 24),
                         ),
                     ],
                   ),
@@ -127,11 +155,127 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+
+  Future<void> _openContestDialog(String uid, String? currentEmail) async {
+    final picker = ImagePicker();
+    final TextEditingController emailController =
+    TextEditingController(text: currentEmail ?? '');
+    XFile? selectedImage;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('🌿 Конкурс урожая'),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    final img =
+                    await picker.pickImage(source: ImageSource.gallery);
+                    if (img != null) setState(() => selectedImage = img);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green.shade300),
+                      image: selectedImage != null
+                          ? DecorationImage(
+                        image: FileImage(File(selectedImage!.path)),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: selectedImage == null
+                        ? const Text('📷 Нажми, чтобы выбрать фото')
+                        : const SizedBox.shrink(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Введите e-mail',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            style:
+            TextButton.styleFrom(foregroundColor: Colors.green.shade700),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF63D471),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              if (selectedImage == null || emailController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Выберите фото и введите e-mail!')),
+                );
+                return;
+              }
+              await _uploadContestPhoto(
+                  uid, emailController.text, selectedImage!);
+              Navigator.pop(ctx);
+            },
+            child: const Text('📤 Отправить'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _uploadContestPhoto(
+      String uid, String email, XFile file) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final saved = await File(file.path)
+        .copy('${dir.path}/contest_${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+    final ref = FirebaseDatabase.instance
+        .ref('contests/$email/${uid}_${DateTime.now().millisecondsSinceEpoch}');
+    await ref.set({
+      'uid': uid,
+      'email': email,
+      'path': saved.path,
+      'createdAt': DateTime.now().toIso8601String(),
+    });
+
+    final scoreRef = FirebaseDatabase.instance.ref('users/$uid/score');
+    await scoreRef.runTransaction((data) {
+      double cur = (data as num?)?.toDouble() ?? 0;
+      return Transaction.success(cur + 100.0);
+    });
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Фото отправлено! +100 баллов 🌿')),
+    );
+  }
+
+
   Future<void> _logout() async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text('Выход из аккаунта'),
         content: const Text('Ты уверен, что хочешь выйти? 🌿'),
         actions: [
@@ -165,6 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final userProv = Provider.of<UserProvider>(context);
@@ -172,24 +317,124 @@ class _ProfileScreenState extends State<ProfileScreen>
     final details = _generateCardDetails();
 
     return Scaffold(
-      backgroundColor: Colors.green.shade50,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+      body: LeafBackground(
+        offsetFactor: 1.2,
+        waveSpeed: 0.8,
+        moveDuration: const Duration(seconds: 7),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: _chooseCardDesign,
+                  child: _buildCard(user, details),
+                ),
+                const SizedBox(height: 24),
+                _infoPanel(user),
+                const SizedBox(height: 24),
+                _gridButtons(user),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _gridButtons(user) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 14,
+      crossAxisSpacing: 14,
+      children: [
+
+        _linkCode == null
+            ? _squareButton(
+          icon: Icons.qr_code_2_rounded,
+          label: 'Создать код',
+          color: const Color(0xFF63D471),
+          onTap: () async {
+            if (user != null) await _createLinkCode(user.uid, user.email);
+          },
+        )
+            : _buildCodeButton(_linkCode!),
+        _squareButton(
+          icon: Icons.storefront_outlined,
+          label: 'Магазин наград',
+          color: const Color(0xFF81C784),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ShopScreen()),
+          ),
+        ),
+        _squareButton(
+          icon: Icons.photo_camera_rounded,
+          label: 'Конкурс урожая',
+          color: const Color(0xFFA5D6A7),
+          onTap: () async {
+            if (user == null) return;
+            await _openContestDialog(user.uid, user.email);
+          },
+        ),
+        _squareButton(
+          icon: Icons.logout_rounded,
+          label: 'Выйти',
+          color: Colors.redAccent,
+          onTap: _logout,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCodeButton(String code) {
+    return GestureDetector(
+      onTap: () {
+        Clipboard.setData(ClipboardData(text: code));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Код "$code" скопирован 📋')),
+        );
+      },
+      child: Container(
+        height: 110,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF63D471), Color(0xFF2E7D32)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: _chooseCardDesign,
-                child: _buildCard(user, details),
+              const Icon(Icons.copy, color: Colors.white, size: 30),
+              const SizedBox(height: 6),
+              Text(
+                code,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 24),
-              _infoPanel(user),
-              const SizedBox(height: 24),
-              _squareButton(
-                icon: Icons.logout,
-                label: 'Выход',
-                onTap: _logout,
+              Text(
+                'Нажми, чтобы скопировать',
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.9), fontSize: 12),
               ),
             ],
           ),
@@ -198,6 +443,47 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  Widget _squareButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 110,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white, size: 34),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
   Widget _buildCard(user, details) {
     final design = _cardDesigns.firstWhere(
           (e) => e['name'] == _selectedDesign,
@@ -307,57 +593,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             bottom: 20,
             child: Text(
               'VALID: ${details['expiry']}   CVV: ${details['cvv']}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black45,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.black45),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _squareButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        height: 70,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF63D471), Color(0xFF41B66E)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 28, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -388,7 +627,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
-
   Widget _infoRow(IconData icon, String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),

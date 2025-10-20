@@ -74,26 +74,25 @@ class ShelvesProvider with ChangeNotifier {
     }
   }
 
-  /// 🗑️ Удаление стеллажа (и отписка от обновлений)
+
   Future<void> removeShelf(String shelfId) async {
     try {
-      // Удаляем из локальной карты и уведомляем слушателей
+
       shelves.remove(shelfId);
       notifyListeners();
 
-      // Отписываем слушателя Firebase, если есть
+
       if (_subs.containsKey(shelfId)) {
         await _subs[shelfId]?.cancel();
         _subs.remove(shelfId);
       }
 
-      // Удаляем связь пользователя с этим стеллажом
+
       if (user != null) {
         await db.child('users/${user!.uid}/shelves/$shelfId').remove();
       }
 
-      // ❗ Удалять сам стеллаж из базы полностью
-      // только если он не используется другими пользователями
+
       await db.child('shelves/$shelfId').remove();
     } catch (e) {
       debugPrint('Ошибка при удалении стеллажа: $e');

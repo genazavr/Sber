@@ -21,8 +21,8 @@ class _BottomNavState extends State<BottomNav> {
     ShelvesScreen(),
     const CoursesScreen(),
     const FirebaseGoalsScreen(),
-    const ChatPage(),     // 👈 теперь чат на 5-й позиции
-    const ProfileScreen(), // 👈 карта теперь последняя
+    const ChatPage(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -32,8 +32,8 @@ class _BottomNavState extends State<BottomNav> {
       {'icon': Icons.local_florist_rounded, 'label': 'Цветочек'},
       {'icon': Icons.menu_book_rounded, 'label': 'Курсы'},
       {'icon': Icons.savings_rounded, 'label': 'Копилка'},
-      {'icon': Icons.chat_bubble_rounded, 'label': 'Чат'}, // 👈 теперь чат
-      {'icon': Icons.credit_card_rounded, 'label': 'Карта'}, // 👈 карта последняя
+      {'icon': Icons.chat_bubble_rounded, 'label': 'Чат'},
+      {'icon': Icons.credit_card_rounded, 'label': 'Карта'},
     ];
 
     return Scaffold(

@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/leaf_background.dart';
 
-/// =====================
-/// 🌿 ЭКРАН ВИКТОРИНЫ
-/// =====================
+
 class QuizScreen extends StatefulWidget {
   final String quizId;
   final String title;
@@ -93,7 +91,7 @@ class _QuizScreenState extends State<QuizScreen>
 
     setState(() => _saving = true);
 
-    // 💾 Сохраняем результат
+
     final histRef =
     FirebaseDatabase.instance.ref('users/$uid/quizHistory/${widget.quizId}').push();
     await histRef.set({
@@ -199,7 +197,7 @@ class _QuizScreenState extends State<QuizScreen>
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // 🔹 Верхняя панель
+
                 Row(
                   children: [
                     IconButton(
@@ -221,7 +219,7 @@ class _QuizScreenState extends State<QuizScreen>
                 ),
                 const SizedBox(height: 8),
 
-                // 🔹 Прогресс
+
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
@@ -233,7 +231,7 @@ class _QuizScreenState extends State<QuizScreen>
                 ),
                 const SizedBox(height: 20),
 
-                // 🔹 Контент
+
                 Expanded(
                   child: FadeTransition(
                     opacity: _fadeAnim,
@@ -277,7 +275,7 @@ class _QuizScreenState extends State<QuizScreen>
                         ),
                         const SizedBox(height: 16),
 
-                        // 🔹 Варианты ответов
+
                         Expanded(
                           child: ListView.builder(
                             itemCount: (q['options'] as List).length,
@@ -330,7 +328,7 @@ class _QuizScreenState extends State<QuizScreen>
 
                 const SizedBox(height: 12),
 
-                // 🔹 Кнопки
+
                 if (_saving)
                   const Center(child: CircularProgressIndicator())
                 else
@@ -384,9 +382,7 @@ class _QuizScreenState extends State<QuizScreen>
   }
 }
 
-/// =====================
-/// 🌾 ВОПРОСЫ ВИКТОРИН
-/// =====================
+
 
 final List<Map<String, dynamic>> agroQuiz = [
   {'question': 'Что растениям нужно для жизни?', 'options': ['Свет, вода и воздух', 'Только свет', 'Только вода', 'Только воздух'], 'answer': 0},

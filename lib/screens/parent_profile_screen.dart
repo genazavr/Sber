@@ -20,11 +20,11 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
   bool _showUid = false;
   String? _status;
 
-  // 💳 Фиксированные данные карты
+
   final String _expiry = '07/29';
   final String _cvv = '312';
 
-  // 📚 Загрузка истории тестов ребёнка из quizHistory/agro/...
+
   Future<List<Map<String, dynamic>>> _loadTests(String childUid) async {
     final ref = FirebaseDatabase.instance.ref('users/$childUid/quizHistory');
     final snap = await ref.get();
@@ -112,7 +112,7 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
     }
   }
 
-  // 👶 Получение списка детей
+
   Future<List<Map<String, dynamic>>> _fetchAllChildren(String parentUid) async {
     final snap =
     await FirebaseDatabase.instance.ref('parents/$parentUid/children').get();
@@ -155,7 +155,7 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
               children: [
                 const SizedBox(height: 10),
 
-                // 💳 Карта родителя (в твоём стиле)
+
                 Container(
                   width: 340,
                   height: 210,
@@ -323,7 +323,6 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
 
                 const Divider(height: 40, thickness: 0.8),
 
-                // 👶 Список детей
                 const Text(
                   "Мои дети 🌱",
                   style: TextStyle(

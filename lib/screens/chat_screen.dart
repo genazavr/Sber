@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../widgets/leaf_background.dart'; // твой листовой фон 🌿
+import '../widgets/leaf_background.dart';
 
-// ⚙️ Настройки API
+
 const String API_ENDPOINT =
     'https://api.intelligence.io.solutions/api/v1/chat/completions';
 const String API_KEY = 'io-v2-eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvd25lciI6IjEzYTk1NjZlLWE5OWQtNDlmYy04YzJjLTE3MDFiYWY4YjYwMCIsImV4cCI6NDkxNDQyNzEzMH0.kgDeNQVg_p26eJBtdRb73gB1VFENY1y_oAH4mb0bfj3yQc_RCgpmQNi2mhWG7RHADkIfxewLUoU8Vv62Zx72YQ'; // 🔑 добавь ключ
@@ -30,17 +30,20 @@ class _ChatPageState extends State<ChatPage> {
 Ты — Ёжик 🦔. Застенчивый, вежливый и доброжелательный.
 Отвечай мягко, дружелюбно и по-детски понятно. Любишь природу и уют.
 Пиши по-русски.
+делай не большые ответы
 ''';
       case 'Лосяш':
         return '''
 Ты — Лосяш 🦌. Учёный, но добрый и весёлый. Объясняй просто, с примерами и немного юмора.
 Пиши по-русски.
+делай не большые ответы
 ''';
       default:
         return '''
 Ты — Копатыч 🐻. Добродушный фермер, любишь труд и природу. Отвечай с теплом и простотой.
 Пиши по-русски. Добавляй фразы вроде:
 — «Главное — с любовью к земле!»
+делай не большые ответы
 ''';
     }
   }
@@ -243,7 +246,7 @@ class _ChatPageState extends State<ChatPage> {
               _buildCharacterSelector(),
               const SizedBox(height: 10),
 
-              // 💬 Список сообщений
+
               Expanded(
                 child: ListView.builder(
                   controller: _scrollController,
@@ -260,7 +263,7 @@ class _ChatPageState extends State<ChatPage> {
                   child: CircularProgressIndicator(color: Colors.green),
                 ),
 
-              // 📝 Поле ввода
+
               Padding(
                 padding:
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),

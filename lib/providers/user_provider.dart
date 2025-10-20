@@ -34,7 +34,7 @@ class UserProvider with ChangeNotifier {
           _loading = false;
           notifyListeners();
         } else {
-          // если данных нет — создаём базовую запись
+
           currentUser = AppUser(
             uid: firebaseUser!.uid,
             email: firebaseUser!.email ?? '',
@@ -56,14 +56,14 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  /// Очистка данных при выходе
+
   void clearUser() {
     currentUser = null;
     _sub?.cancel();
     notifyListeners();
   }
 
-  /// Добавить очки пользователю
+
   Future<void> addScore(double delta) async {
     if (firebaseUser == null) return;
     final ref =
@@ -75,12 +75,12 @@ class UserProvider with ChangeNotifier {
     });
   }
 
-  /// 💰 Перевести деньги другому пользователю (по UID или email)
+
   Future<bool> transferMoney(String receiverUidOrEmail, double amount) async {
     if (firebaseUser == null) return false;
     String? receiverUid = receiverUidOrEmail;
 
-    // Если введён email — ищем UID
+
     if (receiverUidOrEmail.contains('@')) {
       final snap = await FirebaseDatabase.instance.ref('users').get();
       if (snap.exists && snap.value != null) {
@@ -100,7 +100,7 @@ class UserProvider with ChangeNotifier {
 
     bool success = false;
 
-    // Сначала вычитаем деньги у отправителя
+
     await senderRef.runTransaction((Object? data) {
       double current = (data is num) ? data.toDouble() : 0.0;
       if (current >= amount) {
@@ -113,13 +113,13 @@ class UserProvider with ChangeNotifier {
 
     if (!success) return false;
 
-    // Затем добавляем деньги получателю
+
     await receiverRef.runTransaction((Object? data) {
       double current = (data is num) ? data.toDouble() : 0.0;
       return Transaction.success(current + amount);
     });
 
-    // Записываем историю перевода (опционально)
+
     final timestamp = DateTime.now().toIso8601String();
     await FirebaseDatabase.instance
         .ref('transactions/${firebaseUser!.uid}/$timestamp')

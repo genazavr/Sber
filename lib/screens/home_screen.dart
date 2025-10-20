@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
 
-    // 🌿 Анимация плавного появления экрана (как "из сплэша")
+
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen>
       curve: Curves.easeOutBack,
     );
 
-    // Запускаем эффекты чуть с задержкой, как будто после Splash
+
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
         _fadeController.forward();
@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Баллы и счёт
+
                     Row(
                       children: [
                         Expanded(
@@ -155,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen>
                     const SizedBox(height: 24),
 
                     Text(
-                      'Перевести деньги другому ребёнку',
+                      'Перевести деньги другому пользователю',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: Colors.green.shade700,
                         fontWeight: FontWeight.bold,
@@ -370,27 +370,51 @@ class _HomeScreenState extends State<HomeScreen>
 
                 if (confirm == true && user != null) {
                   final uid = user.uid;
-                  final ref = FirebaseDatabase.instance.ref('users/$uid/score');
-                  await ref.runTransaction((data) {
+                  final reward = points; // reward == points из задания
+                  final parentUid = item['fromParent']; // UID родителя, если ты сохраняешь его при создании задания
+
+                  // 1️⃣ Начисляем баллы
+                  final scoreRef = FirebaseDatabase.instance.ref('users/$uid/score');
+                  await scoreRef.runTransaction((data) {
                     double cur = (data as num?)?.toDouble() ?? 0;
-                    return Transaction.success(cur + points);
+                    return Transaction.success(cur + reward);
                   });
 
-                  // Удаляем задание после выполнения
+                  // 2️⃣ Начисляем деньги на баланс ребёнка
+                  final balanceRef = FirebaseDatabase.instance.ref('users/$uid/balance');
+                  await balanceRef.runTransaction((data) {
+                    double cur = (data as num?)?.toDouble() ?? 0;
+                    return Transaction.success(cur + reward);
+                  });
+
+                  // 3️⃣ Удаляем задание
                   await FirebaseDatabase.instance.ref('tasks/$uid/$k').remove();
+
+                  // 4️⃣ Добавляем запись о транзакции
+                  final timestamp = DateTime.now().toIso8601String();
+                  await FirebaseDatabase.instance
+                      .ref('transactions/$uid/$timestamp')
+                      .set({
+                    'from': parentUid ?? 'unknown',
+                    'type': 'task_reward',
+                    'amount': reward,
+                    'task': title,
+                    'time': timestamp,
+                  });
 
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: Colors.green,
                         content: Text(
-                          '🎉 Задание "$title" выполнено! +${points.toStringAsFixed(0)} баллов 🌿',
+                          '🎉 Задание "$title" выполнено! +${reward.toStringAsFixed(0)} ₽ и баллов 🌿',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     );
                   }
                 }
+
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),

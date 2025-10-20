@@ -14,7 +14,7 @@ import 'screens/parent_home_screen.dart';
 import 'widgets/bottom_nav.dart';
 import 'splash_screen.dart';
 import 'widgets/leaf_background.dart';
-import 'package:untitled17/MainShell.dart'; // 🌿 добавим контейнер
+import 'package:untitled17/MainShell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +64,7 @@ class _SplashScreenWrapperState extends State<SplashScreenWrapper> {
   @override
   void initState() {
     super.initState();
-    // Splash показываем 2 секунды
+
     Timer(const Duration(seconds: 2), () {
       if (mounted) setState(() => _showSplash = false);
     });
@@ -81,7 +81,7 @@ class _SplashScreenWrapperState extends State<SplashScreenWrapper> {
   @override
   Widget build(BuildContext context) {
     return MainShell(
-      // 🌿 общий фон — листья не пересоздаются
+
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 700),
         switchInCurve: Curves.easeInOut,
@@ -93,17 +93,17 @@ class _SplashScreenWrapperState extends State<SplashScreenWrapper> {
           builder: (context, snapshot) {
             final firebaseUser = snapshot.data;
 
-            // 🧩 Если не вошёл
+
             if (firebaseUser == null) {
               return const AuthScreen();
             }
 
-            // 🔹 Если вошёл, проверяем роль
+
             return Consumer<UserProvider>(
               builder: (context, userProvider, _) {
                 final user = userProvider.currentUser;
 
-                // Пока пользователь не подгрузился
+
                 if (user == null) {
                   if (!_checkingRole) {
                     _checkingRole = true;

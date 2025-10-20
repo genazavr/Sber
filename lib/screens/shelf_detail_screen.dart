@@ -257,7 +257,7 @@ class _ShelfDetailScreenState extends State<ShelfDetailScreen> {
                 ),
               ),
 
-              // 🔹 Кнопка возврата
+
               Positioned(
                 top: 10,
                 left: 8,
@@ -288,7 +288,7 @@ class _ShelfDetailScreenState extends State<ShelfDetailScreen> {
   }
 }
 
-/// 🔹 Информационные строки
+
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -320,7 +320,7 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-/// 🔹 Заголовок раздела
+
 class _SectionTitle extends StatelessWidget {
   final String title;
   const _SectionTitle(this.title);
@@ -338,7 +338,7 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-/// 🔹 Карточка с лёгкой прозрачностью
+
 class _StylishCard extends StatelessWidget {
   final Widget child;
   const _StylishCard({required this.child});

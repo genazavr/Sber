@@ -36,7 +36,7 @@ class _ParentGoalsScreenState extends State<ParentGoalsScreen>
     super.dispose();
   }
 
-  /// ✅ Списание с родителя и пополнение цели
+
   Future<void> _topUpGoal(String childUid, String goalId, double amount) async {
     final parentUid = FirebaseAuth.instance.currentUser!.uid;
     final parentBalanceRef =
@@ -59,10 +59,10 @@ class _ParentGoalsScreenState extends State<ParentGoalsScreen>
       return;
     }
 
-    // списываем с родителя
+
     await parentBalanceRef.set(parentBalance - amount);
 
-    // увеличиваем накопление у ребёнка
+
     final goalSnap = await goalRef.get();
     if (!goalSnap.exists || goalSnap.value == null) return;
     final goal = Map<String, dynamic>.from(goalSnap.value as Map);
@@ -72,7 +72,7 @@ class _ParentGoalsScreenState extends State<ParentGoalsScreen>
     saved += amount;
     await goalRef.update({'savedAmount': saved});
 
-    // проверка достижения цели
+
     if (saved >= target && target > 0) {
       setState(() => _showFallingLeaves = true);
       _leafController.forward(from: 0);
@@ -146,7 +146,7 @@ class _ParentGoalsScreenState extends State<ParentGoalsScreen>
             ),
           ),
 
-          // 🍃 Пасхалка: падающие листья при достижении цели
+
           if (_showFallingLeaves)
             AnimatedBuilder(
               animation: _leafController,
@@ -430,7 +430,7 @@ class _ParentGoalsScreenState extends State<ParentGoalsScreen>
   }
 }
 
-/// 🍃 Кастомный painter для анимации падающих листьев
+
 class _FallingLeavesPainter extends CustomPainter {
   final double progress;
   final Random random;

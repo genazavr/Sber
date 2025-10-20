@@ -10,7 +10,7 @@ class ArticleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF7E9),
-// 🌿 Светло-зелёный фон
+
       body: LeafBackground(
         offsetFactor: 1.1,
         waveSpeed: 0.7,
@@ -21,7 +21,7 @@ class ArticleScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔹 Верхняя панель
+
                 Row(
                   children: [
                     IconButton(
@@ -44,7 +44,7 @@ class ArticleScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // 🔹 Контент статьи
+
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(18),

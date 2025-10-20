@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../widgets/leaf_background.dart';
 
-/// ======================
-/// 🍃 ИСТОРИЯ ВИКТОРИН
-/// ======================
+
 class QuizHistoryScreen extends StatelessWidget {
   final String quizId;
   final String title;
@@ -42,7 +40,7 @@ class QuizHistoryScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // 🔹 Верхняя панель
+
                 Row(
                   children: [
                     IconButton(
@@ -64,7 +62,7 @@ class QuizHistoryScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // 🔹 Поток данных
+
                 Expanded(
                   child: StreamBuilder(
                     stream: ref.onValue,

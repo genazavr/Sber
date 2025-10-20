@@ -3,7 +3,7 @@ class Article {
   final String title;
   final String preview;
   final String content;
-  final String thumbnail; // путь к миниатюре в assets
+  final String thumbnail;
 
   Article({
     required this.id,

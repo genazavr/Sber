@@ -5,7 +5,7 @@ import 'quiz_screen.dart';
 import 'quiz_history.dart';
 import '../widgets/leaf_background.dart';
 
-/// ======== СПИСОК КУРСОВ ========
+
 final List<Map<String, dynamic>> gardenCourses = [
   {
     'id': 'c1',
@@ -45,7 +45,7 @@ final List<Map<String, dynamic>> gardenCourses = [
   },
 ];
 
-/// ======== ЭКРАН КУРСОВ ========
+
 class CoursesScreen extends StatelessWidget {
   const CoursesScreen({super.key});
 
@@ -62,7 +62,7 @@ class CoursesScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: ListView(
               children: [
-                // 🔹 Заголовок
+
                 const Row(
                   children: [
                     CircleAvatar(
@@ -92,7 +92,7 @@ class CoursesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
 
-                // 🔹 Раздел "Курсы"
+
                 const Text(
                   '📗 Обучающие курсы',
                   style: TextStyle(
@@ -145,7 +145,7 @@ class CoursesScreen extends StatelessWidget {
   }
 }
 
-/// ======== Карточка курса ========
+
 class _CourseCard extends StatelessWidget {
   final Map<String, dynamic> course;
   const _CourseCard({required this.course});
@@ -207,7 +207,7 @@ class _CourseCard extends StatelessWidget {
   }
 }
 
-/// ======== Карточка викторины ========
+
 class _QuizCard extends StatelessWidget {
   final String title;
   final String subtitle;

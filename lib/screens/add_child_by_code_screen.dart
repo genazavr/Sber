@@ -57,13 +57,13 @@ class _AddChildByCodeScreenState extends State<AddChildByCodeScreen> {
         return;
       }
 
-      // Добавляем ребёнка к родителю
+
       await _db.child('parents/$parentUid/children/${data['childUid']}').set({
         'email': data['childEmail'],
         'linkedAt': DateTime.now().toIso8601String(),
       });
 
-      // Удаляем использованный код
+
       await _db.child('link_codes/$code').remove();
 
       ScaffoldMessenger.of(context).showSnackBar(

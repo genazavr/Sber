@@ -1,10 +1,10 @@
 class ShelfModel {
   final String id;
   final String owner;
-  final int soilHumidity; // 0/1
-  final int airHumidity; // 0/1
-  final List<int> lights; // length 3, 0/1
-  final List<int> pumps;  // length 3, 0/1
+  final int soilHumidity;
+  final int airHumidity;
+  final List<int> lights;
+  final List<int> pumps;
   final bool auto;
   final Map<String, dynamic> shelvesMeta; // per-pallet metadata
 
@@ -48,7 +48,7 @@ class ShelfModel {
     return ShelfModel(
         id: id,
         owner: owner,
-        soilHumidity: (DateTime.now().second % 2), // 0/1 demo
+        soilHumidity: (DateTime.now().second % 2),
         airHumidity: (DateTime.now().millisecond % 2),
         lights: [0,0,0],
         pumps: [0,0,0],

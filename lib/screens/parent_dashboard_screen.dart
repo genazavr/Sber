@@ -48,38 +48,54 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen>
     super.dispose();
   }
 
-  Future<void> _loadChildren() async {
+  void _loadChildren() {
     final parent = FirebaseAuth.instance.currentUser!;
-    final snap =
-    await FirebaseDatabase.instance.ref('parents/${parent.uid}/children').get();
-    if (!snap.exists || snap.value == null) return;
+    final ref = FirebaseDatabase.instance.ref('parents/${parent.uid}/children');
 
-    final kids = Map<String, dynamic>.from(snap.value as Map);
-    for (var entry in kids.entries) {
-      final uid = entry.key;
-      final val = Map<String, dynamic>.from(entry.value);
-      String? name = val['name'];
-      String? email = val['email'];
-
-      if (name == null || name == "Без имени") {
-        final userSnap = await FirebaseDatabase.instance.ref('users/$uid').get();
-        if (userSnap.exists && userSnap.value != null) {
-          final userData = Map<String, dynamic>.from(userSnap.value as Map);
-          name = userData['name'] ?? name;
-          email = userData['email'] ?? email;
-        }
+    ref.onValue.listen((event) async {
+      final data = event.snapshot.value;
+      if (data == null) {
+        if (mounted) setState(() => _childrenCache.clear());
+        return;
       }
 
-      _childrenCache[uid] = {
-        'name': name ?? 'Без имени',
-        'email': email ?? 'Без email',
-      };
-    }
+      final kids = Map<String, dynamic>.from(data as Map);
+      final newCache = <String, Map<String, String>>{};
 
-    if (mounted) setState(() {});
+      for (var entry in kids.entries) {
+        final uid = entry.key;
+        final val = Map<String, dynamic>.from(entry.value);
+        String? name = val['name'];
+        String? email = val['email'];
+
+
+        if (name == null || name == "Без имени") {
+          final userSnap = await FirebaseDatabase.instance.ref('users/$uid').get();
+          if (userSnap.exists && userSnap.value != null) {
+            final userData = Map<String, dynamic>.from(userSnap.value as Map);
+            name = userData['name'] ?? name;
+            email = userData['email'] ?? email;
+          }
+        }
+
+        newCache[uid] = {
+          'name': name ?? 'Без имени',
+          'email': email ?? 'Без email',
+        };
+      }
+
+      if (mounted) {
+        setState(() {
+          _childrenCache
+            ..clear()
+            ..addAll(newCache);
+        });
+      }
+    });
   }
 
-  // 💸 Перевод средств
+
+
   Future<void> _transferMoney() async {
     final parent = FirebaseAuth.instance.currentUser!;
     final input = _transferTo.text.trim();
@@ -138,7 +154,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen>
     _transferAmount.clear();
   }
 
-  // 🧾 Создание задания
+
   Future<void> _createTask() async {
     if (_selectedChildUid == null) {
       _showSnack('Выберите ребёнка');
@@ -147,12 +163,36 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen>
 
     final title = _taskTitle.text.trim();
     final desc = _taskDesc.text.trim();
-    final reward = double.tryParse(_taskReward.text) ?? 0;
+    final reward = double.tryParse(_taskReward.text.replaceAll(',', '.')) ?? 0;
 
     if (title.isEmpty || reward <= 0) {
       _showSnack('Введите название и вознаграждение');
       return;
     }
+
+    final parent = FirebaseAuth.instance.currentUser!;
+    final parentRef = FirebaseDatabase.instance.ref('users/${parent.uid}/balance');
+
+    final parentSnap = await parentRef.get();
+    double parentBalance = (parentSnap.exists && parentSnap.value is num)
+        ? (parentSnap.value as num).toDouble()
+        : 0.0;
+
+    if (parentBalance < reward) {
+      _showSnack('Недостаточно средств для создания задания');
+      return;
+    }
+
+
+    await parentRef.runTransaction((val) {
+      double current = (val is num) ? val.toDouble() : 0.0;
+      if (current >= reward) {
+        return Transaction.success(current - reward);
+      } else {
+        return Transaction.abort();
+      }
+    });
+
 
     await FirebaseDatabase.instance.ref('tasks/${_selectedChildUid!}').push().set({
       'title': title,
@@ -161,9 +201,11 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen>
       'createdAt': DateTime.now().toIso8601String(),
       'childName': _selectedChildName ?? 'Без имени',
       'childEmail': _selectedChildEmail ?? 'Без email',
+      'status': 'pending',
+      'fromParent': parent.uid,
     });
 
-    _showSnack('Задание добавлено для $_selectedChildName');
+    _showSnack('Задание добавлено и $reward₽ списано с вашего счёта');
     _taskTitle.clear();
     _taskDesc.clear();
     _taskReward.clear();
@@ -177,7 +219,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen>
     ));
   }
 
-  // 🌿 UI
+
   @override
   Widget build(BuildContext context) {
     final parent = FirebaseAuth.instance.currentUser!;
@@ -214,7 +256,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen>
     );
   }
 
-  // 💳 Карта баланса родителя
+
   Widget _balanceCard(User parent) {
     return StreamBuilder(
       stream: FirebaseDatabase.instance.ref('users/${parent.uid}/balance').onValue,

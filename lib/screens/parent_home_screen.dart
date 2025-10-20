@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// используем псевдонимы, чтобы явно различать импорты
+
 import 'parent_dashboard_screen.dart' as dashboard;
 import 'parent_goals_screen.dart' as goals;
 import 'parent_profile_screen.dart';
@@ -16,9 +16,9 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   int _index = 0;
 
   final List<Widget> _screens = [
-    dashboard.ParentDashboardScreen(), // 👶 Главная
-    goals.ParentGoalsScreen(),         // 🎯 Цели детей
-    const ParentProfileScreen(),       // 👩‍👧 Профиль родителя
+    dashboard.ParentDashboardScreen(),
+    goals.ParentGoalsScreen(),
+    const ParentProfileScreen(),
   ];
 
   @override

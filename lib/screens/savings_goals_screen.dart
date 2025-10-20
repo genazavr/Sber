@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../providers/user_provider.dart';
-import '../widgets/leaf_background.dart'; // 🌿 твой фирменный фон
+import '../widgets/leaf_background.dart';
 
 class FirebaseGoalsScreen extends StatefulWidget {
   const FirebaseGoalsScreen({super.key});
@@ -145,17 +145,27 @@ class _FirebaseGoalsScreenState extends State<FirebaseGoalsScreen> {
                           (goal['savedAmount'] ?? 0).toDouble();
 
                           if (saved >= target && target > 0) {
-                            await db.child('users/$uid/goals/${goal['id']}')
-                                .remove();
+
+                            await balanceRef.runTransaction((data) {
+                              double cur = (data as num?)?.toDouble() ?? 0;
+                              return Transaction.success(cur + saved);
+                            });
+
+
+                            await db.child('users/$uid/goals/${goal['id']}').remove();
+
+
                             try {
                               final file = File(goal['imagePath']);
                               if (await file.exists()) await file.delete();
                             } catch (_) {}
+
+
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    '🎉 Цель "${goal['title']}" достигнута!',
+                                    '🎉 Цель "${goal['title']}" достигнута! Деньги возвращены на счёт 💰',
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                   backgroundColor: Colors.green,
@@ -163,6 +173,7 @@ class _FirebaseGoalsScreenState extends State<FirebaseGoalsScreen> {
                               );
                             }
                           }
+
 
                           await _loadGoals();
                           if (context.mounted) Navigator.pop(context);
@@ -326,10 +337,10 @@ class _FirebaseGoalsScreenState extends State<FirebaseGoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 🌿 Кнопка теперь видна полностью
+
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 80.0),
-        // 👈 поднимаем выше навигации
+
         child: FloatingActionButton.extended(
           backgroundColor: const Color(0xFF63D471),
           icon: const Icon(Icons.add, color: Colors.white),

@@ -12,7 +12,7 @@ class ShopScreen extends StatelessWidget {
     final userProv = Provider.of<UserProvider>(context);
     final user = userProv.currentUser;
 
-    // 🎁 Твои реальные картинки
+
     final List<Map<String, dynamic>> prizes = [
       {'id': 'p1', 'img': 'assets/cards/cards11.png', 'cost': 100, 'name': 'Шопер'},
       {'id': 'p2', 'img': 'assets/cards/cards2.png', 'cost': 80, 'name': 'Блокнот'},
@@ -29,7 +29,7 @@ class ShopScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔙 Кнопка "Назад" + заголовок
+
                 Row(
                   children: [
                     IconButton(
@@ -64,7 +64,7 @@ class ShopScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // 🌟 Баллы пользователя
+
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
@@ -109,13 +109,13 @@ class ShopScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // 🎁 Сетка призов
+
                 Expanded(
                   child: GridView.builder(
                     itemCount: prizes.length,
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.7, // 📐 Сделали чуть уже, чтобы картинки не растягивались
+                      childAspectRatio: 0.7,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
@@ -210,7 +210,7 @@ class _PrizeCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
                     prize['img'],
-                    fit: BoxFit.contain, // ✅ чтобы вся картинка помещалась
+                    fit: BoxFit.contain,
                     width: double.infinity,
                   ),
                 ),

@@ -12,10 +12,10 @@ class AuthProvider with ChangeNotifier {
     _auth.authStateChanges().listen((_) => notifyListeners());
   }
 
-  /// 🔹 Регистрация нового пользователя (ребёнка или родителя)
+
   Future<UserCredential> signUp(
       String email, String password, String name, {required String role}) async {
-    // Создаём пользователя в Firebase Auth
+
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -23,7 +23,7 @@ class AuthProvider with ChangeNotifier {
 
     final uid = cred.user!.uid;
 
-    // ✅ Сохраняем профиль в Realtime Database
+
     final userRef = FirebaseDatabase.instance.ref('users/$uid');
 
     final Map<String, dynamic> baseData = {
@@ -36,13 +36,13 @@ class AuthProvider with ChangeNotifier {
 
     await userRef.set(baseData);
 
-    // 🔹 Если родитель — создаём отдельную структуру для будущих данных детей
+
     if (role == 'parent') {
       await FirebaseDatabase.instance.ref('parents/$uid').set({
         'email': email,
         'name': name,
         'createdAt': DateTime.now().toIso8601String(),
-        'children': {}, // сюда можно потом добавлять UID детей
+        'children': {},
       });
     }
 
